@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { ThemeContext } from "../context/ThemeContext";
 
 import { data } from "@/data/todos"
-
+import { useRouter } from "expo-router";
 import { Inter_500Medium, useFonts } from "@expo-google-fonts/inter";
 import Animated, {LinearTransition} from 'react-native-reanimated';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -17,12 +17,21 @@ import Octicons from '@expo/vector-icons/Octicons'
 export default function Index() {
   const [todos, setTodos] = useState([])
   const [text, setText] = useState('')
+  const router = useRouter()
 
   const [loaded, error] = useFonts({
     Inter_500Medium,
   })
 
   const { colorScheme, setColorScheme, theme} = useContext(ThemeContext)
+
+  useEffect(() => {
+        const loadThemeFromStorage = async () => {
+            const storedTheme = await AsyncStorage.getItem("colorScheme");
+            if (storedTheme) setColorScheme(storedTheme);
+        }
+        loadThemeFromStorage()
+    }, [])
   
   useEffect(() => {
     const fetchData = async() => {
@@ -77,19 +86,31 @@ export default function Index() {
     setTodos(todos.filter(todo => todo.id !== id))
   }
 
+  const handlePress = (id) => {
+    router.push(`/todos/${id}`)
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.todoItem}>
-      <Text
-        style={[styles.todoText, item.completed && styles.completedText]}
-        onPress={() => toggleTodo(item.id)}
-      >
-        {item.title}
-      </Text>
+      <Pressable 
+        onPress={() => handlePress(item.id)}
+        onLongPress={() => toggleTodo(item.id)}
+        style={{flex: 1}}>
+        <Text style={[styles.todoText, item.completed && styles.completedText]} numberOfLines={1} ellipsizeMode="tail">
+          {item.title}
+        </Text>
+      </Pressable>
       <Pressable onPress={() => removeTodo(item.id)}>
         <MaterialCommunityIcons name="delete-outline" size={36} color="red" selectable={undefined} />
       </Pressable>
     </View>
   )
+
+  const toggleTheme = async () => {
+        const newScheme = colorScheme === "light" ? "dark" : "light";
+        await AsyncStorage.setItem("colorScheme", newScheme);
+        setColorScheme(newScheme);
+    };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,7 +125,7 @@ export default function Index() {
         <Pressable onPress={addTodo} style={styles.addButton}>
           <Text style={styles.addButtonText}>Add</Text>
         </Pressable>
-        <Pressable onPress={() => setColorScheme(colorScheme === 'light' ? 'dark' : 'light')} style= {{marginLeft: 10}}>
+        <Pressable onPress={toggleTheme} style= {{marginLeft: 10}}>
           {colorScheme === 'dark' 
           ? <Octicons name="moon" size={36} color={theme.text} selectable={undefined} style= {{width: 36}}/> 
           : <Octicons name="sun" size={36} color={theme.text} selectable={undefined} style= {{width: 36}}/> }
@@ -174,7 +195,7 @@ function createStyles(theme, colorScheme){
       pointerEvents: 'auto',
     },
     todoText: {
-      flex: 1,
+      maxWidth: '90%',
       fontSize: 18,
       fontFamily: 'Inter_500Medium',
       color: theme.text,
