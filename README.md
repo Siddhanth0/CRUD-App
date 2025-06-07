@@ -1,7 +1,21 @@
-# Welcome to your Expo app 👋
+# Welcome to your Expo Todo App 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+This app is a simple and clean **Todo List** that lets you **Create, Read, Update, and Delete (CRUD)** tasks. It uses **local storage** for data persistence and includes a **Dark/Light mode toggle** for better user experience.
+
+---
+
+## ✨ Features
+
+* ✅ Add new todos  
+* 📝 Edit existing todos  
+* 🗑️ Delete completed or unwanted todos  
+* 💾 Data stored locally using AsyncStorage  
+* 🌗 Dark and Light mode switch  
+* ⚡ Built with React Native + Expo + Expo Router
+
+  
 ## Get started
 
 1. Install dependencies
